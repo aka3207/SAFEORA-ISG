@@ -1,0 +1,317 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  MANAGER
+  SAFETY_EXPERT
+  DOCTOR
+}
+
+enum SubscriptionPlan {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  TRIALING
+}
+
+model Tenant {
+  id                String             @id @default(cuid())
+  name              String
+  slug              String             @unique
+  logo              String?
+  address           String?
+  taxNumber         String?
+  plan              SubscriptionPlan   @default(STARTER)
+  status            SubscriptionStatus @default(ACTIVE)
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // Relations
+  users             User[]
+  branches          Branch[]
+  employees         Employee[]
+  documents         Document[]
+  risks             RiskAnalysis[]
+  incidents         Incident[]
+  trainings         Training[]
+  activityLogs      ActivityLog[]
+  subscriptions     Subscription[]
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          UserRole  @default(SAFETY_EXPERT)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Tenant Isolation
+  tenantId      String?
+  tenant        Tenant?   @relation(fields: [tenantId], references: [id])
+
+  // Relations
+  actionsCreated  Action[]        @relation("ActionCreator")
+  actionsAssigned Action[]        @relation("ActionAssignee")
+  activityLogs    ActivityLog[]
+  notifications   Notification[]
+}
+
+model Branch {
+  id        String   @id @default(cuid())
+  name      String
+  address   String?
+  city      String?
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  departments Department[]
+  employees   Employee[]
+  incidents   Incident[]
+}
+
+model Department {
+  id        String   @id @default(cuid())
+  name      String
+  
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  employees Employee[]
+}
+
+model Employee {
+  id              String   @id @default(cuid())
+  firstName       String
+  lastName        String
+  tcNo            String?  @unique
+  email           String?
+  phone           String?
+  position        String?
+  startDate       DateTime?
+  status          String   @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  branchId        String
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  
+  departmentId    String
+  department      Department @relation(fields: [departmentId], references: [id])
+
+  // Relations
+  healthRecords   HealthRecord[]
+  trainingRecords TrainingRecord[]
+  ppeAssignments  PPEAssignment[]
+  certificates    Certificate[]
+}
+
+model RiskAnalysis {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  hazardSource    String
+  severity        Int      // 1-5
+  probability     Int      // 1-5
+  riskScore       Int      // severity * probability
+  status          String   @default("OPEN") // OPEN, CLOSED, MITIGATED
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  actions         Action[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // CREATE, UPDATE, DELETE, LOGIN
+  entity    String   // Employee, Risk, etc.
+  entityId  String?
+  details   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model Incident {
+  id              String   @id @default(cuid())
+  type            String   // ACCIDENT, NEAR_MISS, UNSAFE_ACT
+  title           String
+  description     String
+  date            DateTime
+  location        String?
+  severity        String?  // LOW, MEDIUM, HIGH, FATAL
+  photos          String? // JSON string of photo URLs
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  branchId        String
+  branch          Branch   @relation(fields: [branchId], references: [id])
+
+  actions         Action[]
+  createdAt       DateTime @default(now())
+}
+
+model Training {
+  id              String   @id @default(cuid())
+  title           String
+  type            String
+  trainer         String
+  date            DateTime
+  duration        Int      // minutes
+  description     String?
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  records         TrainingRecord[]
+  createdAt       DateTime @default(now())
+}
+
+model TrainingRecord {
+  id          String   @id @default(cuid())
+  trainingId  String
+  training    Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  status      String   @default("COMPLETED") // COMPLETED, PLANNED, CANCELLED
+  score       Int?
+}
+
+model HealthRecord {
+  id              String   @id @default(cuid())
+  employeeId      String
+  employee        Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  
+  type            String   // PERIODIC, INITIAL, RETURN_TO_WORK
+  date            DateTime
+  findings        String?
+  results         String?  // FIT, UNFIT, FIT_WITH_CONDITIONS
+  nextExamDate    DateTime?
+  doctorNotes     String?
+
+  createdAt       DateTime @default(now())
+}
+
+model Document {
+  id              String   @id @default(cuid())
+  name            String
+  category        String   // POLICY, PROCEDURE, EMERGENCY_PLAN, FORM
+  fileUrl         String
+  version         String   @default("1.0")
+  expiryDate      DateTime?
+  
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Action {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  priority        String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  status          String   @default("OPEN") // OPEN, IN_PROGRESS, COMPLETED, OVERDUE
+  deadline        DateTime
+  completedAt     DateTime?
+
+  // Relations
+  riskId          String?
+  risk            RiskAnalysis? @relation(fields: [riskId], references: [id])
+  
+  incidentId      String?
+  incident        Incident?     @relation(fields: [incidentId], references: [id])
+
+  creatorId       String
+  creator         User     @relation("ActionCreator", fields: [creatorId], references: [id])
+  
+  assigneeId      String?
+  assignee        User?    @relation("ActionAssignee", fields: [assigneeId], references: [id])
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title       String
+  message     String
+  type        String   // INFO, WARNING, SUCCESS, ERROR
+  read        Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+}
+
+model Subscription {
+  id              String   @id @default(cuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  
+  plan            SubscriptionPlan
+  startDate       DateTime
+  endDate         DateTime
+  amount          Float
+  currency        String   @default("TRY")
+  invoiceUrl      String?
+
+  createdAt       DateTime @default(now())
+}
+
+model Certificate {
+  id            String   @id @default(cuid())
+  name          String
+  issueDate     DateTime
+  expiryDate    DateTime?
+  fileUrl       String?
+  
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model PPEAssignment {
+  id            String   @id @default(cuid())
+  ppeName       String
+  issueDate     DateTime
+  expiryDate    DateTime?
+  
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
