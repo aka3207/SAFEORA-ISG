@@ -25,45 +25,63 @@ export default function Pricing({ lang }: { lang: Language }) {
   ];
 
   return (
-    <section id="pricing" className="section-padding" style={{ background: 'var(--input-bg)', position: 'relative' }}>
+    <section id="pricing" className="section-padding" style={{ position: 'relative' }}>
+      <div className="soft-lighting" style={{ top: '20%', opacity: 0.5 }} />
+      
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
           <div className="badge">{lang === 'en' ? 'Pricing Plans' : 'Fiyatlandırma'}</div>
-          <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>{t.title}</h2>
-          <p style={{ marginBottom: '2.5rem' }}>{lang === 'en' ? 'Choose the plan that fits your business size.' : 'Şirketinizin büyüklüğüne en uygun planı seçin.'}</p>
+          <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem', color: 'var(--foreground)' }}>{t.title}</h2>
+          <p style={{ maxWidth: '600px', margin: '0 auto 3rem', color: 'var(--text-muted)' }}>
+            {lang === 'en' ? 'Choose the plan that fits your business size.' : 'Şirketinizin büyüklüğüne en uygun planı seçin.'}
+          </p>
           
           <div className="glass-card glow-effect" style={{ 
-            maxWidth: '800px', 
-            margin: '0 auto 4rem', 
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%)',
-            padding: '1.5rem 2.5rem',
+            maxWidth: '750px', 
+            margin: '0 auto', 
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)',
+            padding: '1.25rem 2rem',
             borderRadius: '9999px',
-            border: '2px solid var(--primary)',
+            border: '1px solid var(--accent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '1rem'
+            gap: '1.25rem',
+            boxShadow: '0 0 30px rgba(59, 130, 246, 0.15)'
           }}>
-            <div style={{ background: 'var(--primary)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '900', letterSpacing: '0.05em' }}>
+            <div style={{ 
+              background: 'var(--accent)', 
+              color: 'white', 
+              padding: '0.35rem 0.85rem', 
+              borderRadius: '9999px', 
+              fontSize: '0.7rem', 
+              fontWeight: '900', 
+              letterSpacing: '0.05em',
+              boxShadow: '0 4px 10px rgba(59, 130, 246, 0.3)'
+            }}>
               {lang === 'en' ? 'LIMITED OFFER' : 'SINIRLI TEKLİF'}
             </div>
-            <span style={{ fontWeight: '700', fontSize: '1.1rem', color: 'var(--foreground)' }}>
+            <span style={{ fontWeight: '600', fontSize: '1rem', color: 'var(--foreground)', letterSpacing: '-0.01em' }}>
               {t.foundingMember}
             </span>
           </div>
         </div>
-
-        <div className="grid grid-cols-3">
+ 
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2.5rem' }}>
           {plans.map((plan, index) => (
             <div 
               key={index} 
               className={`glass-card ${plan.featured ? 'glow-effect' : ''}`} 
               style={{ 
                 position: 'relative', 
-                background: plan.featured ? 'var(--background)' : 'var(--card-bg)',
-                borderColor: plan.featured ? 'var(--primary)' : 'var(--card-border)',
-                transform: plan.featured ? 'scale(1.05)' : 'none',
-                zIndex: plan.featured ? 1 : 0
+                background: plan.featured ? 'var(--card-bg)' : 'rgba(15, 23, 42, 0.3)',
+                borderColor: plan.featured ? 'var(--accent)' : 'var(--card-border)',
+                transform: plan.featured ? 'scale(1.02)' : 'none',
+                zIndex: plan.featured ? 1 : 0,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                padding: '2.5rem'
               }}
             >
               {plan.featured && (

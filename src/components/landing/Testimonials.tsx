@@ -14,19 +14,30 @@ export default function Testimonials({ lang }: { lang: Language }) {
           <h2 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>{t.title}</h2>
         </div>
 
-        <div className="grid grid-cols-3">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {t.items.map((item, index) => (
-            <div key={index} className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '2rem' }}>
-              <div style={{ color: 'var(--primary)', opacity: 0.2 }}>
-                <Quote size={48} />
+            <div key={index} className="glass-card glow-effect" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', background: 'var(--card-bg)' }}>
+              <div style={{ color: 'var(--accent)', opacity: 0.15 }}>
+                <Quote size={40} />
               </div>
               
-              <p style={{ fontSize: '1.1rem', color: 'var(--foreground)', fontStyle: 'italic', lineHeight: '1.7' }}>
+              <p style={{ fontSize: '1.05rem', color: 'var(--foreground)', fontStyle: 'italic', lineHeight: '1.7' }}>
                 "{item.quote}"
               </p>
-
+ 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: 'auto' }}>
-                <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--primary), var(--secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>
+                <div style={{ 
+                  width: '48px', 
+                  height: '48px', 
+                  borderRadius: '50%', 
+                  background: 'linear-gradient(135deg, var(--accent), #10b981)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: 'white', 
+                  fontWeight: '800',
+                  fontSize: '1.1rem'
+                }}>
                   {item.author[0]}
                 </div>
                 <div>
