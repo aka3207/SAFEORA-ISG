@@ -1,6 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import { compare } from "bcryptjs";
 
@@ -10,11 +10,9 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  // NextAuth v4 doesn't have a direct 'trustHost', but on Vercel it relies on NEXTAUTH_URL
-  debug: true, // Force true for now to see logs in Vercel
+  debug: true,
   pages: {
     signIn: "/auth/login",
-    error: "/auth/login", // Redirect to login on error
   },
   providers: [
     CredentialsProvider({
