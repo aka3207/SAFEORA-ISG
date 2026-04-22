@@ -1,21 +1,20 @@
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import Credentials from "next-auth/providers/credentials";
 import prisma from "@/lib/prisma";
 import { compare } from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   pages: {
     signIn: "/auth/login",
   },
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -27,7 +26,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
           include: { tenant: true },
         });
 
@@ -35,7 +34,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Kullanıcı bulunamadı.");
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password);
+        const isPasswordValid = await compare(credentials.password as string, user.password);
 
         if (!isPasswordValid) {
           throw new Error("Şifre hatalı.");
@@ -79,4 +78,4 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-};
+});

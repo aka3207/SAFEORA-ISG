@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { Activity, Plus, Clock, ExternalLink, AlertTriangle, Image as ImageIcon, MapPin, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import ExportButton from "@/components/dashboard/ExportButton";
@@ -9,7 +9,7 @@ import PageHeader from "@/components/dashboard/PageHeader";
 import { deleteIncident } from "@/app/actions/incidents";
 
 export default async function IncidentsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const incidents = await prisma.incident.findMany({

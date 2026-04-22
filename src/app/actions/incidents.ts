@@ -1,8 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 
 export async function reportIncident(data: {
   title: string;
@@ -14,7 +13,7 @@ export async function reportIncident(data: {
   branchId: string;
   photos?: string[];
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   if (!user) throw new Error("Unauthorized");
 
@@ -36,7 +35,7 @@ export async function reportIncident(data: {
 }
 
 export async function deleteIncident(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   if (!user) throw new Error("Unauthorized");
 

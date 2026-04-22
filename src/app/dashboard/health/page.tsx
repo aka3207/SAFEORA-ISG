@@ -1,13 +1,13 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { Stethoscope, Heart, AlertCircle, FilePlus, Search, ShieldCheck, Activity, Calendar } from "lucide-react";
 import { redirect } from "next/navigation";
 import PageHeader from "@/components/dashboard/PageHeader";
 import Link from "next/link";
 
 export default async function HealthPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   // Role check: Only Doctor, Company Admin and Super Admin can see this

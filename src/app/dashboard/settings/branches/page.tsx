@@ -1,11 +1,11 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { Building2, Plus, Trash2, MapPin, ChevronRight, Layers } from "lucide-react";
 import Link from "next/link";
 
 export default async function BranchesPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const branches = await prisma.branch.findMany({

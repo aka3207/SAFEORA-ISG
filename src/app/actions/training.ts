@@ -1,8 +1,8 @@
 "use server";
+import { auth } from "@/auth";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { revalidatePath } from "next/cache";
 
 export async function createTraining(data: {
@@ -13,7 +13,7 @@ export async function createTraining(data: {
   duration: number;
   description?: string;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
 
   const user = session.user as any;

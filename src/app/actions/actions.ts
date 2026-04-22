@@ -1,12 +1,12 @@
 "use server";
+import { auth } from "@/auth";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { revalidatePath } from "next/cache";
 
 export async function completeAction(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   if (!user) {
@@ -31,7 +31,7 @@ export async function completeAction(id: string) {
 }
 
 export async function deleteAction(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   if (!user) {

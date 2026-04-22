@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { ClipboardList, Clock, CheckCircle2, User, AlertOctagon, ChevronRight } from "lucide-react";
 import CompleteActionButton from "@/components/dashboard/CompleteActionButton";
 import DeleteButton from "@/components/dashboard/DeleteButton";
@@ -8,7 +8,7 @@ import { deleteAction } from "@/app/actions/actions";
 import PageHeader from "@/components/dashboard/PageHeader";
 
 export default async function ActionsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const actions = await prisma.action.findMany({

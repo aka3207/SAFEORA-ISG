@@ -1,9 +1,9 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
+
 import { User, Mail, Phone, Camera, Save, Shield } from "lucide-react";
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   return (

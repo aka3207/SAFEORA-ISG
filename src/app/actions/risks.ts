@@ -1,8 +1,8 @@
 "use server";
+import { auth } from "@/auth";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 
 export async function createRisk(data: {
   title: string;
@@ -13,7 +13,7 @@ export async function createRisk(data: {
   assigneeId?: string;
   deadline?: string;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   if (!user) throw new Error("Unauthorized");
 
@@ -52,7 +52,7 @@ export async function createRisk(data: {
 }
 
 export async function deleteRisk(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   if (!user) throw new Error("Unauthorized");
 

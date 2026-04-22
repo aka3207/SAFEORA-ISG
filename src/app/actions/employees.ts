@@ -1,8 +1,8 @@
 "use server";
+import { auth } from "@/auth";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/logger";
 
@@ -17,7 +17,7 @@ export async function createEmployee(data: {
   departmentId: string;
   startDate?: string;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   if (!user || !user.tenantId) {
@@ -55,7 +55,7 @@ export async function createEmployee(data: {
 }
 
 export async function deleteEmployee(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   if (!user || !user.tenantId) {

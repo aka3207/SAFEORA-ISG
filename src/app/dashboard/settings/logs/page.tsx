@@ -1,11 +1,11 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { History, User, Clock, Terminal } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function ActivityLogsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   // Only Admins

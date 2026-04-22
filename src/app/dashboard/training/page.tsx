@@ -1,12 +1,12 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { Plus, GraduationCap, Calendar, Clock, Download, ChevronRight, Users as UsersIcon } from "lucide-react";
 import Link from "next/link";
 import PageHeader from "@/components/dashboard/PageHeader";
 
 export default async function TrainingPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const trainings = await prisma.training.findMany({

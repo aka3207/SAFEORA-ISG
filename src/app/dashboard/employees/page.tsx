@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { Plus, User, Search, Filter, Download, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import ExportButton from "@/components/dashboard/ExportButton";
@@ -9,7 +9,7 @@ import { deleteEmployee } from "@/app/actions/employees";
 import PageHeader from "@/components/dashboard/PageHeader";
 
 export default async function EmployeesPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const employees = await prisma.employee.findMany({

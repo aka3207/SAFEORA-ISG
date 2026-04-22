@@ -1,12 +1,12 @@
 "use server";
+import { auth } from "@/auth";
 
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { revalidatePath } from "next/cache";
 
 export async function createBranch(data: { name: string; city: string; address?: string }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   if (!user || !user.tenantId) throw new Error("Unauthorized");
@@ -23,7 +23,7 @@ export async function createBranch(data: { name: string; city: string; address?:
 }
 
 export async function createDepartment(data: { name: string; branchId: string }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) throw new Error("Unauthorized");
 
   const dept = await prisma.department.create({
@@ -38,7 +38,7 @@ export async function createDepartment(data: { name: string; branchId: string })
 }
 
 export async function deleteBranch(id: string) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   if (!user || !user.tenantId) throw new Error("Unauthorized");
 

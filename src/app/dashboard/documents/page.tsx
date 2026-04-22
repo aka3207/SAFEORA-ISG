@@ -1,12 +1,12 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { FileText, Download, Clock, ShieldCheck, FileUp, ChevronRight, HardDrive, Filter } from "lucide-react";
 import PageHeader from "@/components/dashboard/PageHeader";
 import Link from "next/link";
 
 export default async function DocumentsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const documents = await prisma.document.findMany({

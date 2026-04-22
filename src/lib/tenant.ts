@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 /**
@@ -7,7 +6,7 @@ import prisma from "@/lib/prisma";
  * Throws an error if the user is not authenticated or has no tenant.
  */
 export async function getTenantId() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
   
   if (!user || (!user.tenantId && user.role !== "SUPER_ADMIN")) {

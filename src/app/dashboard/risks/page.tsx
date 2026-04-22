@@ -1,6 +1,6 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { ShieldAlert, Plus, AlertCircle, ChevronRight, Zap, Target } from "lucide-react";
 import Link from "next/link";
 import ExportButton from "@/components/dashboard/ExportButton";
@@ -9,7 +9,7 @@ import PageHeader from "@/components/dashboard/PageHeader";
 import { deleteRisk } from "@/app/actions/risks";
 
 export default async function RisksPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const risks = await prisma.riskAnalysis.findMany({

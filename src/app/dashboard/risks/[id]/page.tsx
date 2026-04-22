@@ -1,13 +1,13 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { ArrowLeft, AlertCircle, ShieldAlert, CheckCircle2, Clock, Calendar } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function RiskDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const risk = await prisma.riskAnalysis.findUnique({

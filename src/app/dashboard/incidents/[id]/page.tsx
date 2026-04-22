@@ -1,13 +1,13 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+
 import { ArrowLeft, Activity, MapPin, Clock, Calendar, AlertCircle, Camera } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default async function IncidentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   const user = session?.user as any;
 
   const incident = await prisma.incident.findUnique({
