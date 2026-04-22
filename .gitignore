@@ -12,10 +12,14 @@
 
 # production
 /build
+dist/
 
 # misc
 .DS_Store
 *.pem
+*.spec
+__pycache__/
+*.pyc
 
 # debug
 npm-debug.log*
