@@ -46,8 +46,8 @@ export default function Sidebar({ user }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const filteredMenu = useMemo(() => 
-    MENU_ITEMS.filter(item => !item.roles || item.roles.includes(user.role)),
-    [user.role]
+    MENU_ITEMS.filter(item => !item.roles || (user?.role && item.roles.includes(user.role))),
+    [user?.role]
   );
 
   return (
