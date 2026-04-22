@@ -9,8 +9,12 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  // NextAuth v4 doesn't have a direct 'trustHost', but on Vercel it relies on NEXTAUTH_URL
+  debug: true, // Force true for now to see logs in Vercel
   pages: {
     signIn: "/auth/login",
+    error: "/auth/login", // Redirect to login on error
   },
   providers: [
     CredentialsProvider({
