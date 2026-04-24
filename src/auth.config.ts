@@ -23,7 +23,7 @@ export default {
   },
   session: { strategy: "jwt" },
   trustHost: true,
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "safeora-isg-temporary-debug-secret-9988",
   pages: {
     signIn: "/auth/login",
   },
