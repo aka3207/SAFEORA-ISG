@@ -19,33 +19,110 @@ export async function getAdminStats() {
   const [
     totalTenants,
     activeTenants,
-    totalUsers,
-    totalSubscriptions,
+    totalExperts,
+    totalVisits,
+    overdueVisits,
     recentTenants,
   ] = await Promise.all([
     prisma.tenant.count(),
     prisma.tenant.count({ where: { status: "ACTIVE" } }),
-    prisma.user.count(),
-    prisma.subscription.count(),
+    prisma.user.count({ where: { role: "SAFETY_EXPERT" } }),
+    prisma.visit.count(),
+    prisma.visit.count({ where: { status: "OVERDUE" } }),
     prisma.tenant.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
+      include: { assignedExpert: true }
     }),
   ]);
 
-  // Mock revenue for now as we don't have full stripe integration yet
-  const mrr = 142500; 
+  // Operational metrics
+  const completedVisitsMonth = await prisma.visit.count({
+    where: {
+      status: "COMPLETED",
+      completedAt: {
+        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+      }
+    }
+  });
+
+  const mrr = totalTenants * 1500; // Mock simplified revenue
   const growth = 12.5;
 
   return {
     totalTenants,
     activeTenants,
-    totalUsers,
-    totalSubscriptions,
+    totalExperts,
+    totalVisits,
+    overdueVisits,
+    completedVisitsMonth,
     mrr,
     growth,
     recentTenants,
   };
+}
+
+export async function getExperts() {
+  await ensureFounder();
+  return await prisma.user.findMany({
+    where: { role: "SAFETY_EXPERT" },
+    select: { id: true, name: true, email: true }
+  });
+}
+
+export async function createClientCompany(data: {
+  name: string;
+  taxNumber: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  sector: string;
+  employeeCount: number;
+  riskClass: string;
+  assignedExpertId: string;
+  visitFrequency: string;
+  notes?: string;
+}) {
+  await ensureFounder();
+
+  // Create the slug from name
+  const slug = data.name.toLowerCase().replace(/ /g, "-").replace(/[^\w-]+/g, "");
+
+  const tenant = await prisma.tenant.create({
+    data: {
+      name: data.name,
+      slug,
+      taxNumber: data.taxNumber,
+      contactPerson: data.contactPerson,
+      phone: data.phone,
+      email: data.email,
+      address: data.address,
+      sector: data.sector,
+      employeeCount: data.employeeCount,
+      riskClass: data.riskClass,
+      assignedExpertId: data.assignedExpertId,
+      visitFrequency: data.visitFrequency,
+      notes: data.notes,
+      status: "ACTIVE",
+    }
+  });
+
+  // Automatically create the first visit
+  await prisma.visit.create({
+    data: {
+      title: "İlk Tanışma ve İSG Kurulum Ziyareti",
+      scheduledDate: new Date(),
+      status: "UPCOMING",
+      tenantId: tenant.id,
+      expertId: data.assignedExpertId,
+    }
+  });
+
+  revalidatePath("/admin/tenants");
+  revalidatePath("/admin/dashboard");
+  
+  return tenant;
 }
 
 export async function getTenants() {

@@ -19,13 +19,6 @@ enum UserRole {
   DOCTOR
 }
 
-enum TenantStatus {
-  ACTIVE
-  SUSPENDED
-  FROZEN
-  ARCHIVED
-}
-
 enum SubscriptionPlan {
   STARTER
   GROWTH
@@ -37,6 +30,9 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELED
   TRIALING
+  SUSPENDED
+  FROZEN
+  ARCHIVED
 }
 
 model Tenant {
@@ -46,14 +42,32 @@ model Tenant {
   logo              String?
   address           String?
   taxNumber         String?
+  taxOffice         String?
+  contactPerson     String?
+  phone             String?
+  email             String?
+  sector            String?            // Örn: İnşaat, Tekstil
+  storageUsed       Int                @default(0)
+  employeeCount     Int                @default(0)
+  branchCount       Int                @default(1)
+  riskClass         String?            // VERY_HAZARDOUS, HAZARDOUS, LESS_HAZARDOUS
+  visitFrequency    String             @default("MONTHLY") // MONTHLY, BI_WEEKLY, etc.
+  notes             String?
+  
   plan              SubscriptionPlan   @default(STARTER)
-  status            TenantStatus       @default(ACTIVE)
+  status            SubscriptionStatus @default(ACTIVE)
   isActive          Boolean            @default(true)
   healthScore       Float              @default(100.0)
-  modules           Json?              // For selective module activation
-  storageUsed       BigInt             @default(0)
+  
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+
+  // Assignment Logic
+  assignedExpertId  String?
+  assignedExpert    User?              @relation("ExpertAssignments", fields: [assignedExpertId], references: [id])
+  
+  assignedDoctorId  String?
+  assignedDoctor    User?              @relation("DoctorAssignments", fields: [assignedDoctorId], references: [id])
 
   // Relations
   users             User[]
@@ -66,6 +80,7 @@ model Tenant {
   activityLogs      ActivityLog[]
   subscriptions     Subscription[]
   supportTickets    SupportTicket[]
+  visits            Visit[]
 }
 
 model User {
@@ -81,7 +96,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  // Tenant Isolation
+  // Relations for OSGB Model
+  expertTenants   Tenant[]  @relation("ExpertAssignments")
+  doctorTenants   Tenant[]  @relation("DoctorAssignments")
+
+  // Legacy/Internal Tenant
   tenantId      String?
   tenant        Tenant?   @relation(fields: [tenantId], references: [id])
 
@@ -90,8 +109,45 @@ model User {
   actionsAssigned Action[]        @relation("ActionAssignee")
   activityLogs    ActivityLog[]
   notifications   Notification[]
+  visits          Visit[]
 }
 
+model Visit {
+  id              String    @id @default(cuid())
+  title           String    @default("Aylık Periyodik Ziyaret")
+  scheduledDate   DateTime
+  completedAt     DateTime?
+  status          String    @default("UPCOMING") // UPCOMING, COMPLETED, OVERDUE, CANCELLED
+  notes           String?
+  
+  tenantId        String
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  expertId        String
+  expert          User      @relation(fields: [expertId], references: [id])
+  
+  report          VisitReport?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model VisitReport {
+  id              String    @id @default(cuid())
+  visitId         String    @unique
+  visit           Visit     @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  
+  date            DateTime  @default(now())
+  contactPerson   String?
+  observations    String
+  unsafeConditions String?
+  actionsRequired String?
+  photos          String?   // JSON URLs
+  signature       String?   // Data URL
+  recommendation  String?
+  
+  createdAt       DateTime  @default(now())
+}
 
 model Lead {
   id            String    @id @default(cuid())

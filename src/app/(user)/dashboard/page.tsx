@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 
 import { redirect } from "next/navigation";
-import DashboardStatsLoader from "@/components/dashboard/DashboardStatsLoader";
+import { ExpertDashboard } from "@/components/dashboard/ExpertDashboard";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -29,8 +29,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Unified Dashboard UI - Loaded via Client Wrapper */}
-      <DashboardStatsLoader />
+      {/* Operational Dashboard for Experts & Clients */}
+      <ExpertDashboard />
     </div>
   );
 }
