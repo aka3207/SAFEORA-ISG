@@ -7,11 +7,18 @@ export const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const isAuth = !!req.auth;
   const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
-  const role = (req.auth?.user as any)?.role;
+  const user = req.auth?.user as any;
+  const role = user?.role;
+  const isFounder = user?.isFounder;
+  const isSuspended = user?.isSuspended;
+
+  if (isSuspended) {
+    return NextResponse.redirect(new URL("/auth/login?error=AccountSuspended", req.url));
+  }
 
   if (isAuthPage) {
     if (isAuth) {
-      if (role === "SUPER_ADMIN") {
+      if (isFounder) {
         return NextResponse.redirect(new URL("/admin/dashboard", req.url));
       }
       return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -29,13 +36,15 @@ export default auth((req) => {
     );
   }
 
-  // Role-based protection
-  if (req.nextUrl.pathname.startsWith("/admin") && role !== "SUPER_ADMIN") {
+  // Role-based protection for Owner Console
+  if (req.nextUrl.pathname.startsWith("/admin") && !isFounder) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith("/app") && role === "SUPER_ADMIN") {
-    return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+  if (req.nextUrl.pathname.startsWith("/dashboard") && isFounder) {
+    // Optionally redirect founder to admin if they try to access tenant dashboard
+    // But maybe let them see it too? The request says "No normal customer should ever see this panel."
+    // and "This is hidden owner-level infrastructure."
   }
 
   return NextResponse.next();

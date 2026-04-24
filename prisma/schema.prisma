@@ -19,6 +19,13 @@ enum UserRole {
   DOCTOR
 }
 
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  FROZEN
+  ARCHIVED
+}
+
 enum SubscriptionPlan {
   STARTER
   GROWTH
@@ -40,8 +47,11 @@ model Tenant {
   address           String?
   taxNumber         String?
   plan              SubscriptionPlan   @default(STARTER)
-  status            SubscriptionStatus @default(ACTIVE)
+  status            TenantStatus       @default(ACTIVE)
   isActive          Boolean            @default(true)
+  healthScore       Float              @default(100.0)
+  modules           Json?              // For selective module activation
+  storageUsed       BigInt             @default(0)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -55,6 +65,7 @@ model Tenant {
   trainings         Training[]
   activityLogs      ActivityLog[]
   subscriptions     Subscription[]
+  supportTickets    SupportTicket[]
 }
 
 model User {
@@ -63,6 +74,9 @@ model User {
   email         String    @unique
   password      String
   role          UserRole  @default(SAFETY_EXPERT)
+  isFounder     Boolean   @default(false)
+  isSuspended   Boolean   @default(false)
+  lastLoginAt   DateTime?
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -76,6 +90,60 @@ model User {
   actionsAssigned Action[]        @relation("ActionAssignee")
   activityLogs    ActivityLog[]
   notifications   Notification[]
+}
+
+
+model Lead {
+  id            String    @id @default(cuid())
+  companyName   String
+  contactName   String
+  email         String
+  phone         String?
+  source        String?   // Website, Referral, etc.
+  status        String    @default("NEW") // NEW, CONTACTED, DEMO_BOOKED, PROPOSAL_SENT, WON, LOST
+  notes         String?
+  assignedTo    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model SupportTicket {
+  id            String    @id @default(cuid())
+  subject       String
+  message       String
+  priority      String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status        String    @default("OPEN")   // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  
+  userId        String
+  // We can track who opened it if needed, but for now we link to tenant
+  
+  assignedAdmin String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Announcement {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  type          String    @default("INFO") // INFO, MAINTENANCE, UPDATE
+  targetTenant  String?   // Null means global
+  isActive      Boolean   @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model SystemLog {
+  id            String    @id @default(cuid())
+  action        String
+  details       String?
+  userId        String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
 }
 
 model Branch {

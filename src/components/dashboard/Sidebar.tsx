@@ -23,22 +23,22 @@ import { signOut } from "next-auth/react";
 
 interface SidebarProps {
   user: {
-    name?: string | null;
-    role: string;
+    isFounder?: boolean;
+    isSuspended?: boolean;
     tenantName?: string;
   };
 }
 
 const MENU_ITEMS = [
   { name: "Genel Bakış", icon: LayoutDashboard, href: "/dashboard" },
-  { name: "Çalışanlar", icon: Users, href: "/dashboard/employees", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "MANAGER"] },
+  { name: "Çalışanlar", icon: Users, href: "/dashboard/employees", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "MANAGER", "SAFETY_EXPERT"] },
   { name: "Risk Analizi", icon: ShieldAlert, href: "/dashboard/risks", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT"] },
   { name: "Kaza & Olay", icon: Activity, href: "/dashboard/incidents", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT", "MANAGER"] },
   { name: "Aksiyonlar (DÖF)", icon: ClipboardList, href: "/dashboard/actions", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT", "MANAGER"] },
   { name: "Eğitimler", icon: Calendar, href: "/dashboard/training", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT"] },
   { name: "Sağlık Takibi", icon: Box, href: "/dashboard/health", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "DOCTOR"] },
   { name: "Dokümanlar", icon: FileText, href: "/dashboard/documents", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT", "MANAGER", "DOCTOR"] },
-  { name: "Kurumsal", icon: Building2, href: "/dashboard/settings/branches", roles: ["SUPER_ADMIN", "COMPANY_ADMIN"] },
+  { name: "Kurumsal", icon: Building2, href: "/dashboard/settings/branches", roles: ["SUPER_ADMIN", "COMPANY_ADMIN", "SAFETY_EXPERT"] },
 ];
 
 export default function Sidebar({ user }: SidebarProps) {
@@ -46,8 +46,11 @@ export default function Sidebar({ user }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const filteredMenu = useMemo(() => 
-    MENU_ITEMS.filter(item => !item.roles || (user?.role && item.roles.includes(user.role))),
-    [user?.role]
+    MENU_ITEMS.filter(item => {
+      if (user?.isFounder) return true; // Founder sees everything
+      return !item.roles || (user?.role && item.roles.includes(user.role));
+    }),
+    [user?.role, user?.isFounder]
   );
 
   return (
@@ -99,7 +102,9 @@ export default function Sidebar({ user }: SidebarProps) {
             </div>
             <div className="overflow-hidden">
                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.name}</p>
-               <p className="text-[10px] font-semibold text-slate-400 truncate uppercase">{user.role}</p>
+               <p className="text-[10px] font-semibold text-slate-400 truncate uppercase">
+                 {user.isFounder ? "OWNER" : user.role}
+               </p>
             </div>
           </div>
         )}

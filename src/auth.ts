@@ -48,6 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: user.email,
             role: user.role,
             tenantId: user.tenantId,
+            isFounder: user.isFounder,
+            isSuspended: user.isSuspended,
           } as any;
         } catch (error) {
           console.error("CRITICAL AUTH ERROR:", error);
