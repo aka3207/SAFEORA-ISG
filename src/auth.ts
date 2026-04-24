@@ -15,50 +15,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         console.log("Authorize attempt for:", credentials?.email);
-        if (!credentials?.email || !credentials?.password) {
-          console.error("Missing credentials");
-          throw new Error("Geçerli bir e-posta ve şifre giriniz.");
-        }
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-          include: { tenant: true },
-        });
-
-        if (!user) {
-          console.error("User not found:", credentials.email);
-          throw new Error("Kullanıcı bulunamadı.");
-        }
-
-        console.log("User found, comparing password...");
-        const isPasswordValid = await compare(credentials.password as string, user.password);
-
-        if (!isPasswordValid) {
-          console.error("Invalid password for:", credentials.email);
-          throw new Error("Şifre hatalı.");
-        }
-
-        console.log("Password valid, checking tenant/role...");
-        // Check if tenant is active
-        if (user.role !== "SUPER_ADMIN") {
-          if (!user.tenant) {
-            console.error("User has no tenant:", credentials.email);
-            throw new Error("Kullanıcı bir şirkete bağlı değil.");
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            console.error("Missing credentials");
+            throw new Error("Missing parameters");
           }
-          if (!user.tenant.isActive) {
-            console.error("Tenant inactive for user:", credentials.email);
-            throw new Error("Şirket hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.");
-          }
-        }
 
-        console.log("Authorize successful for:", credentials.email);
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          tenantId: user.tenantId,
-        } as any;
+          // Dynamic import or local check
+          const prisma = (await import("@/lib/prisma")).default;
+
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            include: { tenant: true },
+          });
+
+          if (!user) {
+            console.error("User not found:", credentials.email);
+            return null;
+          }
+
+          const isPasswordValid = await compare(credentials.password as string, user.password);
+
+          if (!isPasswordValid) {
+            console.error("Invalid password for:", credentials.email);
+            return null;
+          }
+
+          console.log("Authorize successful for:", credentials.email);
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            tenantId: user.tenantId,
+          } as any;
+        } catch (error) {
+          console.error("CRITICAL AUTH ERROR:", error);
+          return null;
+        }
       },
     }),
   ],
