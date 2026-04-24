@@ -21,18 +21,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error("Missing parameters");
           }
 
-          // DANGER: BRUTE FORCE BYPASS FOR DEBUGGING
-          if (credentials.email === "admin@arslan.com" && credentials.password === "admin123") {
-              console.log("BRUTE FORCE SUCCESS FOR ADMIN");
-              return {
-                id: "fixed-admin-id",
-                name: "Mehmet Arslan",
-                email: "admin@arslan.com",
-                role: "COMPANY_ADMIN",
-                tenantId: "fixed-tenant-id",
-              } as any;
-          }
-
           // Dynamic import or local check
           const prisma = (await import("@/lib/prisma")).default;
 
@@ -46,8 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // DEBUG: Bypass bcrypt for direct testing
-          const isPasswordValid = (credentials.password === "admin123") || await compare(credentials.password as string, user.password);
+          const isPasswordValid = await compare(credentials.password as string, user.password);
 
           if (!isPasswordValid) {
             console.error("Invalid password for:", credentials.email);

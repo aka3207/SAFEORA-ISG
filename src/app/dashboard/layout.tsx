@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   const user = session.user as any;
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-slate-50">
+    <div className="flex h-screen w-full overflow-hidden bg-slate-50 dark:bg-black">
       {/* Sidebar - Side-by-side flex item */}
       <Sidebar user={user} />
 

@@ -35,7 +35,7 @@
   --font-main: var(--font-jakarta), 'Inter', sans-serif;
 }
 
-[data-theme='dark'] {
+[data-theme='dark'], .dark {
   --background: #020617;
   --foreground: #f8fafc;
   

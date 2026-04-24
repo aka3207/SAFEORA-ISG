@@ -51,16 +51,16 @@ export default function Sidebar({ user }: SidebarProps) {
   );
 
   return (
-    <aside className={`bg-white border-r border-slate-200 transition-all duration-300 z-50 flex flex-col shadow-sm h-full ${collapsed ? "w-20" : "w-72"}`}>
+    <aside className={`bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 z-50 flex flex-col shadow-sm h-full ${collapsed ? "w-20" : "w-72"}`}>
       {/* Sidebar Header */}
-      <div className="h-20 flex items-center px-6 border-b border-slate-100 mb-2">
+      <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800 mb-2">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center shadow-lg shadow-slate-200 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-blue-600 flex items-center justify-center shadow-lg shadow-slate-200 dark:shadow-blue-900/20 shrink-0">
             <Shield className="text-white w-6 h-6" />
           </div>
           {!collapsed && (
             <div className="overflow-hidden animate-in fade-in slide-in-from-left-2">
-               <h1 className="font-extrabold text-xl tracking-tight text-slate-900 leading-none">SAFEORA</h1>
+               <h1 className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white leading-none">SAFEORA</h1>
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate block mt-1">
                  {user.tenantName || "Sistem"}
                </span>
@@ -79,26 +79,26 @@ export default function Sidebar({ user }: SidebarProps) {
               href={item.href}
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
-                ${isActive ? "bg-slate-900 text-white shadow-md shadow-slate-200" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}
+                ${isActive ? "bg-slate-900 dark:bg-blue-600 text-white shadow-md shadow-slate-200 dark:shadow-blue-900/20" : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-white"}
               `}
             >
-              <item.icon className={`w-5 h-5 shrink-0 ${isActive ? "text-blue-400" : "group-hover:text-slate-900"}`} />
+              <item.icon className={`w-5 h-5 shrink-0 ${isActive ? "text-blue-400 dark:text-blue-200" : "group-hover:text-slate-900 dark:group-hover:text-white"}`} />
               {!collapsed && <span className="font-semibold text-sm truncate">{item.name}</span>}
-              {!collapsed && isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400"></div>}
+              {!collapsed && isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400 dark:bg-blue-200"></div>}
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Controls */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
         {!collapsed && (
-          <div className="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-2xl mb-3 shadow-sm animate-in fade-in slide-in-from-bottom-2">
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 font-bold text-slate-700">
+          <div className="flex items-center gap-3 p-3 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl mb-3 shadow-sm animate-in fade-in slide-in-from-bottom-2">
+            <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-800 font-bold text-slate-700 dark:text-slate-300">
                {user.name?.[0]}
             </div>
             <div className="overflow-hidden">
-               <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
+               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user.name}</p>
                <p className="text-[10px] font-semibold text-slate-400 truncate uppercase">{user.role}</p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export default function Sidebar({ user }: SidebarProps) {
         <div className="flex gap-2">
           <button 
             onClick={() => signOut()}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm ${collapsed ? "w-full justify-center" : "flex-1"}`}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all font-bold text-sm ${collapsed ? "w-full justify-center" : "flex-1"}`}
           >
             <LogOut className="w-5 h-5" />
             {!collapsed && <span>Oturumu Kapat</span>}
@@ -115,7 +115,7 @@ export default function Sidebar({ user }: SidebarProps) {
           
           <button 
             onClick={() => setCollapsed(!collapsed)}
-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all shadow-sm shrink-0"
+            className="w-11 h-11 flex items-center justify-center rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all shadow-sm shrink-0"
           >
             {collapsed ? <Menu className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
           </button>
